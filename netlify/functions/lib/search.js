@@ -29,6 +29,24 @@ function tokenize(text) {
     .filter((w) => w.length > 1 && !STOPWORDS.has(w));
 }
 
+// A handful of well-known cases where a question uses a name the source
+// text uses differently at different points in the story — most notably
+// Paul, called "Saul" up through his conversion in Acts 9 and only
+// renamed "Paul" starting in Acts 13. Query-side only: expands what we
+// search for, never touches how the library itself is indexed.
+const QUERY_SYNONYMS = {
+  paul: ['saul'],
+  peter: ['cephas', 'simon'],
+};
+
+function expandQueryTokens(tokens) {
+  const expanded = new Set(tokens);
+  for (const tok of tokens) {
+    for (const syn of QUERY_SYNONYMS[tok] || []) expanded.add(syn);
+  }
+  return [...expanded];
+}
+
 function loadChunks() {
   const bible = require('../data/bible-chunks.json');
   const summa = require('../data/summa-chunks.json');
@@ -86,11 +104,15 @@ function search(question, limit = 12) {
   const { chunks, invIndex, docFreq, docLength, avgDocLength, totalDocs } = getIndex();
   const queryTokens = [...new Set(tokenize(question))];
   if (queryTokens.length === 0) return [];
+  // Coverage below is scored against the original tokens (what the
+  // question actually asked), not the synonym-expanded set — a synonym
+  // hit is bonus recall, not something the question is expected to match.
+  const searchTokens = expandQueryTokens(queryTokens);
 
   const scores = new Map(); // chunkIndex -> score
   const coverageCount = new Map(); // chunkIndex -> distinct matching query terms
 
-  for (const tok of queryTokens) {
+  for (const tok of searchTokens) {
     const postings = invIndex.get(tok);
     if (!postings) continue;
     const df = docFreq.get(tok) || 1;
