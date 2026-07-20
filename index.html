@@ -236,7 +236,7 @@
     <p class="lead">Plain-English answers, drawn only from Church sources. And every answer is footnoted, so you can always see where it came from.</p>
 
     <div class="askrow">
-      <input type="text" id="question" placeholder="What does the Church teach about forgiveness?" aria-label="Ask a question about the Catholic faith" />
+      <input type="text" id="question" maxlength="500" placeholder="What does the Church teach about forgiveness?" aria-label="Ask a question about the Catholic faith" />
       <button class="askbtn" id="askbtn">Ask &rarr;</button>
     </div>
 
@@ -269,55 +269,15 @@
 
 <script>
   /* ============================================================
-     ANSWERS OF FAITH — front-end preview
+     ANSWERS OF FAITH — live
 
-     WHERE THE LIVE ANSWERS PLUG IN:
-     Right now the answers below are three worked samples so we can
-     fine-tune how a real answer looks. When we build the "brain,"
-     the getAnswer() function will do two things instead:
-       1. Search your text library (Bible, Summa, Fathers) for the
-          passages that fit the question.
-       2. Send those passages to the Claude API with the instruction:
+     getAnswer() calls netlify/functions/ask.js, which:
+       1. Searches the Bible + Summa library for the passages that
+          fit the question.
+       2. Sends those passages to Claude with the instruction:
           "Answer using ONLY these passages, in plain English, and
-          footnote each one. If the passages don't cover it, say so."
-     The screen it fills in stays exactly the same shape as below.
+          footnote each one. If the passages do not cover it, say so."
      ============================================================ */
-
-  const SAMPLES = {
-    "why do catholics confess their sins to a priest?": {
-      asked: "Why do Catholics confess their sins to a priest?",
-      body: [
-        "Catholics confess to a priest because Jesus gave his apostles the power to forgive sins, and that power was handed down through the Church. After the Resurrection, Jesus breathed on the apostles and told them that whoever's sins they forgave would be forgiven.[1]",
-        "The priest doesn't forgive on his own strength. He stands in the place of Christ, who is the one truly forgiving. Saying our sins out loud is also part of being honest about them and turning away from them.[2]"
-      ],
-      sources: [
-        { ref: "John 20:22\u201323", gloss: "\u201CReceive ye the Holy Ghost. Whose sins you shall forgive, they are forgiven them; and whose sins you shall retain, they are retained.\u201D" },
-        { ref: "Summa Theologica \u2014 Part III, Question 84", gloss: "On why confession of sins is part of the sacrament of penance, and how the priest acts as the minister of Christ's forgiveness." }
-      ]
-    },
-    "what is grace?": {
-      asked: "What is grace?",
-      body: [
-        "Grace is God's help, given to us freely. It isn't something we earn or buy. It's a gift, poured into us so we can live as God's children and grow closer to him.[1]",
-        "The Church teaches that grace is a share in God's own life. It lifts us above what we could ever do on our own, and it heals what sin has broken in us.[2]"
-      ],
-      sources: [
-        { ref: "Ephesians 2:8", gloss: "\u201CFor by grace you are saved through faith, and that not of yourselves, for it is the gift of God.\u201D" },
-        { ref: "Summa Theologica \u2014 Part I-II, Question 110", gloss: "On grace as a gift that raises human nature to share in the divine life, distinct from our natural powers." }
-      ]
-    },
-    "who was saint paul?": {
-      asked: "Who was Saint Paul?",
-      body: [
-        "Saint Paul began as a man named Saul who worked against the early Church. On the road to Damascus he met the risen Christ, and his whole life turned around.[1]",
-        "After that, he became the great missionary of the early Church, traveling far to preach and writing many letters that are now part of the Bible. Much of what we know about living the faith comes from those letters.[2]"
-      ],
-      sources: [
-        { ref: "Acts 9:3\u20135", gloss: "\u201CAnd suddenly a light from heaven shined round about him. And falling on the ground\u2026 he heard a voice saying: Saul, Saul, why persecutest thou me?\u201D" },
-        { ref: "Galatians 1:1", gloss: "\u201CPaul, an apostle, not of men, neither by man, but by Jesus Christ, and God the Father\u2026\u201D" }
-      ]
-    }
-  };
 
   function renderAnswer(sample) {
     let bodyHtml = sample.body.map(function (para) {
@@ -354,37 +314,80 @@
       '</div>';
   }
 
-  function renderNotFound(q) {
-    return '' +
+  function renderLoading() {
+    return "" +
+      '<div class="answer-card">' +
+        '<p class="notfound"><span class="tag">Searching the sources...</span></p>' +
+      '</div>';
+  }
+
+  function renderNotFound(message) {
+    return "" +
       '<div class="answer-card">' +
         '<p class="notfound">' +
-          '<span class="tag">Preview</span><br />' +
-          'This is the design preview, so it only has a few sample answers wired up. ' +
-          'The live version that searches the whole library and answers any question ' +
-          'is the next piece we build. Try one of the sample questions above to see a full answer.' +
+          '<span class="tag">Not in these sources</span><br />' +
+          (message || "I could not find teaching on this in these sources.") +
         '</p>' +
       '</div>';
   }
 
-  /* This is the seam. Later, this becomes an async call to the
-     library search + Claude API. For now it returns a sample. */
-  function getAnswer(rawQuestion) {
-    const key = rawQuestion.trim().toLowerCase();
-    return SAMPLES[key] || null;
+  function renderError() {
+    return "" +
+      '<div class="answer-card">' +
+        '<p class="notfound">' +
+          '<span class="tag">Something went wrong</span><br />' +
+          "Please try asking again in a moment." +
+        '</p>' +
+      '</div>';
+  }
+
+  async function getAnswer(rawQuestion) {
+    const res = await fetch(".netlify/functions/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: rawQuestion }),
+    });
+    if (!res.ok) throw new Error("request failed");
+    const data = await res.json();
+
+    if (!data.found) {
+      return { notFound: true, message: data.notFoundMessage };
+    }
+
+    return {
+      asked: data.asked,
+      body: data.paragraphs,
+      sources: data.sources.map(function (s) { return { ref: s.citation, gloss: s.quote }; }),
+    };
   }
 
   const panel = document.getElementById("answerPanel");
   const input = document.getElementById("question");
 
-  function ask(q) {
-    if (!q || !q.trim()) return;
-    const sample = getAnswer(q);
-    panel.innerHTML = sample ? renderAnswer(sample) : renderNotFound(q);
+  let asking = false;
+  const askBtn = document.getElementById("askbtn");
+
+  async function ask(q) {
+    if (!q || !q.trim() || asking) return;
+    asking = true;
+    askBtn.disabled = true;
+
+    panel.innerHTML = renderLoading();
     panel.classList.remove("hidden");
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    try {
+      const result = await getAnswer(q);
+      panel.innerHTML = result.notFound ? renderNotFound(result.message) : renderAnswer(result);
+    } catch (e) {
+      panel.innerHTML = renderError();
+    } finally {
+      asking = false;
+      askBtn.disabled = false;
+    }
   }
 
-  document.getElementById("askbtn").addEventListener("click", function () {
+  askBtn.addEventListener("click", function () {
     ask(input.value);
   });
   input.addEventListener("keydown", function (e) {
