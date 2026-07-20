@@ -5,9 +5,12 @@
 //
 // Loaded once per warm function container (module-level state), so the
 // index only gets built on a cold start, not on every request.
-
-const fs = require('fs');
-const path = require('path');
+//
+// The chunk libraries are loaded via require(), not fs.readFileSync —
+// Netlify's function bundler only follows the require()/import graph to
+// decide what to include in the deployed bundle, so a dynamic
+// fs.readFileSync path (even to a file sitting right next to this one)
+// silently doesn't ship, and fails at runtime with ENOENT.
 
 const STOPWORDS = new Set([
   'a', 'an', 'the', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be',
@@ -27,8 +30,8 @@ function tokenize(text) {
 }
 
 function loadChunks() {
-  const bible = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'bible-chunks.json'), 'utf8'));
-  const summa = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'summa-chunks.json'), 'utf8'));
+  const bible = require('../data/bible-chunks.json');
+  const summa = require('../data/summa-chunks.json');
   return [...bible, ...summa];
 }
 
