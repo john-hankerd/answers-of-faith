@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Answers of Faith — questions about the Catholic faith, answered from Church sources</title>
+<meta name="description" content="Plain-English answers about the Catholic faith, drawn only from the Bible, the Catechism, Aquinas, and the Church Fathers. Every answer is footnoted." />
+<meta name="theme-color" content="#2F5137" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Answers of Faith" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --vellum:      #F2EAD6;
+    --vellum-2:    #FBF6E9;
+    --ink:         #24402C;
+    --indigo:      #2F5137;
+    --indigo-deep: #17301F;
+    --gold:        #A9843A;
+    --gold-soft:   #E4D2A2;
+    --rubric:      #8C2F2A;
+    --muted:       #6E6656;
+    --line:        #DBCFB2;
+
+    --serif: "EB Garamond", Georgia, serif;
+    --sans:  "Inter", system-ui, sans-serif;
+    --radius: 10px;
+    --maxw: 720px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--vellum);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--indigo); color: var(--gold-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 18px; font-weight: 600;
+  }
+  .brand .name { font-family: var(--serif); font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+  .backlink {
+    font-size: 13px; color: var(--muted); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .backlink:hover { color: var(--indigo); }
+
+  /* ---------- eyebrow (rubric) ---------- */
+  .eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--rubric); margin: 0 0 14px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 56px 0 40px; text-align: center; }
+  .hero h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(32px, 6vw, 46px); line-height: 1.15;
+    margin: 0 0 16px; color: var(--indigo-deep);
+  }
+  .hero .lead {
+    font-family: var(--serif); font-size: 20px; color: var(--ink);
+    max-width: 520px; margin: 0 auto 32px; line-height: 1.5;
+  }
+
+  /* ---------- ask box ---------- */
+  .askrow {
+    display: flex; gap: 10px; max-width: 560px; margin: 0 auto 18px;
+  }
+  #question {
+    flex: 1; font-family: var(--sans); font-size: 16px;
+    padding: 14px 16px; border: 1.5px solid var(--line);
+    border-radius: var(--radius); background: var(--vellum-2); color: var(--ink);
+    transition: border-color .15s ease;
+  }
+  #question::placeholder { color: #A79A7C; }
+  #question:focus { outline: none; border-color: var(--indigo); }
+  .askbtn {
+    font-family: var(--sans); font-size: 16px; font-weight: 500;
+    padding: 0 22px; border: none; border-radius: var(--radius);
+    background: var(--indigo); color: var(--vellum-2); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background .15s ease;
+  }
+  .askbtn:hover { background: var(--indigo-deep); }
+  .askbtn:active { transform: translateY(1px); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 600px; margin: 0 auto; }
+  .chips .label { font-size: 13px; color: var(--muted); align-self: center; }
+  .chip {
+    font-family: var(--sans); font-size: 13px; cursor: pointer;
+    background: var(--vellum-2); border: 1px solid var(--line);
+    border-radius: 20px; padding: 6px 14px; color: var(--muted);
+    transition: all .15s ease;
+  }
+  .chip:hover { border-color: var(--gold); color: var(--indigo); }
+
+  /* ---------- answer panel ---------- */
+  .answer { max-width: var(--maxw); margin: 8px 0 0; }
+  .answer.hidden { display: none; }
+  .answer-card {
+    background: var(--vellum-2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 32px 34px;
+    animation: rise .4s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  .asked {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--indigo-deep); margin: 0 0 20px; line-height: 1.3;
+  }
+  .answer-body { font-family: var(--serif); font-size: 19px; line-height: 1.65; color: var(--ink); }
+  .answer-body p { margin: 0 0 14px; }
+  .fn {
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    color: var(--gold); vertical-align: super; line-height: 0;
+    cursor: pointer; padding: 0 1px; text-decoration: none;
+  }
+  .fn:hover { color: var(--rubric); }
+
+  .sources { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .source {
+    display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;
+  }
+  .source:last-child { margin-bottom: 0; }
+  .snum {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--indigo); color: var(--gold-soft);
+  }
+  .sbody { flex: 1; }
+  .sref { font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--indigo); margin: 2px 0 0; }
+  .sref .book { color: var(--indigo-deep); }
+  .gloss {
+    margin: 8px 0 0; padding: 12px 16px;
+    background: var(--vellum); border-left: 3px solid var(--gold);
+    font-family: var(--serif); font-style: italic; font-size: 17px;
+    color: var(--muted); line-height: 1.55;
+  }
+  .toggle {
+    font-family: var(--sans); font-size: 13px; color: var(--muted);
+    background: none; border: none; cursor: pointer; padding: 4px 0 0;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .toggle:hover { color: var(--indigo); }
+  .gloss.hidden { display: none; }
+
+  .notfound {
+    font-family: var(--serif); font-size: 19px; color: var(--ink);
+    line-height: 1.6; margin: 0;
+  }
+  .notfound .tag {
+    display: inline-block; font-family: var(--sans); font-size: 12px;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--rubric); margin-bottom: 10px;
+  }
+
+  /* ---------- sources section ---------- */
+  .shelf { padding: 52px 0 20px; text-align: center; }
+  .shelf-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin: 4px 0 0;
+  }
+  .book-card {
+    background: var(--vellum-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 12px;
+  }
+  .book-card .ic { font-size: 22px; color: var(--gold); }
+  .book-card .t { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--indigo-deep); margin: 8px 0 2px; }
+  .book-card .s { font-size: 12px; color: var(--muted); }
+
+  .disclaimer {
+    max-width: 500px; margin: 28px auto 0; font-size: 13.5px;
+    color: var(--muted); line-height: 1.6; text-align: center;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    margin-top: 48px; border-top: 1px solid var(--line);
+    padding: 24px 0 40px; text-align: center;
+  }
+  footer p { font-size: 13px; color: var(--muted); margin: 0; }
+  footer a { color: var(--indigo); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 560px) {
+    .askrow { flex-direction: column; }
+    .askbtn { padding: 13px; justify-content: center; }
+    .shelf-grid { grid-template-columns: repeat(2, 1fr); }
+    .answer-card { padding: 24px 22px; }
+    .backlink span { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .answer-card { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">A</div>
+      <div class="name">Answers of Faith</div>
+    </div>
+    <a class="backlink" href="https://40thfloor.com">&larr; <span>Back to&nbsp;</span>40thFloor</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="hero">
+    <p class="eyebrow">Ask &middot; Learn &middot; See the sources</p>
+    <h1>Questions about the Catholic faith,<br />answered from the Church</h1>
+    <p class="lead">Plain-English answers, drawn only from Church sources. And every answer is footnoted, so you can always see where it came from.</p>
+
+    <div class="askrow">
+      <input type="text" id="question" placeholder="What does the Church teach about forgiveness?" aria-label="Ask a question about the Catholic faith" />
+      <button class="askbtn" id="askbtn">Ask &rarr;</button>
+    </div>
+
+    <div class="chips">
+      <span class="label">Try:</span>
+      <button class="chip" data-q="Why do Catholics confess their sins to a priest?">Why confess to a priest?</button>
+      <button class="chip" data-q="What is grace?">What is grace?</button>
+      <button class="chip" data-q="Who was Saint Paul?">Who was St. Paul?</button>
+    </div>
+  </section>
+
+  <section class="answer hidden" id="answerPanel" aria-live="polite"></section>
+
+  <section class="shelf">
+    <p class="eyebrow">Every answer comes only from</p>
+    <div class="shelf-grid">
+      <div class="book-card"><div class="ic">&#10015;</div><div class="t">The Bible</div><div class="s">Douay-Rheims</div></div>
+      <div class="book-card"><div class="ic">&#9998;</div><div class="t">Aquinas</div><div class="s">the Summa</div></div>
+      <div class="book-card"><div class="ic">&#9784;</div><div class="t">Church Fathers</div><div class="s">Augustine &amp; more</div></div>
+    </div>
+    <p class="disclaimer">Answers of Faith is a study helper for learning the faith. It isn't a priest, and its answers aren't official Church teaching. For guidance on your own life, please talk with your parish.</p>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Part of the <a href="https://40thfloor.com">40thFloor</a> family of small-business apps.</p>
+  </div>
+</footer>
+
+<script>
+  /* ============================================================
+     ANSWERS OF FAITH — front-end preview
+
+     WHERE THE LIVE ANSWERS PLUG IN:
+     Right now the answers below are three worked samples so we can
+     fine-tune how a real answer looks. When we build the "brain,"
+     the getAnswer() function will do two things instead:
+       1. Search your text library (Bible, Summa, Fathers) for the
+          passages that fit the question.
+       2. Send those passages to the Claude API with the instruction:
+          "Answer using ONLY these passages, in plain English, and
+          footnote each one. If the passages don't cover it, say so."
+     The screen it fills in stays exactly the same shape as below.
+     ============================================================ */
+
+  const SAMPLES = {
+    "why do catholics confess their sins to a priest?": {
+      asked: "Why do Catholics confess their sins to a priest?",
+      body: [
+        "Catholics confess to a priest because Jesus gave his apostles the power to forgive sins, and that power was handed down through the Church. After the Resurrection, Jesus breathed on the apostles and told them that whoever's sins they forgave would be forgiven.[1]",
+        "The priest doesn't forgive on his own strength. He stands in the place of Christ, who is the one truly forgiving. Saying our sins out loud is also part of being honest about them and turning away from them.[2]"
+      ],
+      sources: [
+        { ref: "John 20:22\u201323", gloss: "\u201CReceive ye the Holy Ghost. Whose sins you shall forgive, they are forgiven them; and whose sins you shall retain, they are retained.\u201D" },
+        { ref: "Summa Theologica \u2014 Part III, Question 84", gloss: "On why confession of sins is part of the sacrament of penance, and how the priest acts as the minister of Christ's forgiveness." }
+      ]
+    },
+    "what is grace?": {
+      asked: "What is grace?",
+      body: [
+        "Grace is God's help, given to us freely. It isn't something we earn or buy. It's a gift, poured into us so we can live as God's children and grow closer to him.[1]",
+        "The Church teaches that grace is a share in God's own life. It lifts us above what we could ever do on our own, and it heals what sin has broken in us.[2]"
+      ],
+      sources: [
+        { ref: "Ephesians 2:8", gloss: "\u201CFor by grace you are saved through faith, and that not of yourselves, for it is the gift of God.\u201D" },
+        { ref: "Summa Theologica \u2014 Part I-II, Question 110", gloss: "On grace as a gift that raises human nature to share in the divine life, distinct from our natural powers." }
+      ]
+    },
+    "who was saint paul?": {
+      asked: "Who was Saint Paul?",
+      body: [
+        "Saint Paul began as a man named Saul who worked against the early Church. On the road to Damascus he met the risen Christ, and his whole life turned around.[1]",
+        "After that, he became the great missionary of the early Church, traveling far to preach and writing many letters that are now part of the Bible. Much of what we know about living the faith comes from those letters.[2]"
+      ],
+      sources: [
+        { ref: "Acts 9:3\u20135", gloss: "\u201CAnd suddenly a light from heaven shined round about him. And falling on the ground\u2026 he heard a voice saying: Saul, Saul, why persecutest thou me?\u201D" },
+        { ref: "Galatians 1:1", gloss: "\u201CPaul, an apostle, not of men, neither by man, but by Jesus Christ, and God the Father\u2026\u201D" }
+      ]
+    }
+  };
+
+  function renderAnswer(sample) {
+    let bodyHtml = sample.body.map(function (para) {
+      return "<p>" + para.replace(/\[(\d+)\]/g, function (m, n) {
+        return '<a href="#src-' + n + '" class="fn">' + n + '</a>';
+      }) + "</p>";
+    }).join("");
+
+    let sourcesHtml = sample.sources.map(function (s, i) {
+      let n = i + 1;
+      let parts = s.ref.split(" \u2014 ");
+      let refHtml = parts.length > 1
+        ? '<span class="book">' + parts[0] + '</span> \u2014 ' + parts[1]
+        : '<span class="book">' + s.ref + '</span>';
+      return '' +
+        '<div class="source" id="src-' + n + '">' +
+          '<div class="snum">' + n + '</div>' +
+          '<div class="sbody">' +
+            '<p class="sref">' + refHtml + '</p>' +
+            '<button class="toggle" data-gloss="g' + n + '">Read the passage &rarr;</button>' +
+            '<div class="gloss hidden" id="g' + n + '">' + s.gloss + '</div>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+
+    return '' +
+      '<div class="answer-card">' +
+        '<p class="asked">' + sample.asked + '</p>' +
+        '<div class="answer-body">' + bodyHtml + '</div>' +
+        '<div class="sources">' +
+          '<p class="eyebrow" style="text-align:left;margin-bottom:16px;">Sources</p>' +
+          sourcesHtml +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderNotFound(q) {
+    return '' +
+      '<div class="answer-card">' +
+        '<p class="notfound">' +
+          '<span class="tag">Preview</span><br />' +
+          'This is the design preview, so it only has a few sample answers wired up. ' +
+          'The live version that searches the whole library and answers any question ' +
+          'is the next piece we build. Try one of the sample questions above to see a full answer.' +
+        '</p>' +
+      '</div>';
+  }
+
+  /* This is the seam. Later, this becomes an async call to the
+     library search + Claude API. For now it returns a sample. */
+  function getAnswer(rawQuestion) {
+    const key = rawQuestion.trim().toLowerCase();
+    return SAMPLES[key] || null;
+  }
+
+  const panel = document.getElementById("answerPanel");
+  const input = document.getElementById("question");
+
+  function ask(q) {
+    if (!q || !q.trim()) return;
+    const sample = getAnswer(q);
+    panel.innerHTML = sample ? renderAnswer(sample) : renderNotFound(q);
+    panel.classList.remove("hidden");
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("askbtn").addEventListener("click", function () {
+    ask(input.value);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") ask(input.value);
+  });
+  document.querySelectorAll(".chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      input.value = chip.dataset.q;
+      ask(chip.dataset.q);
+    });
+  });
+
+  panel.addEventListener("click", function (e) {
+    const t = e.target.closest(".toggle");
+    if (!t) return;
+    const gloss = document.getElementById(t.dataset.gloss);
+    const isHidden = gloss.classList.toggle("hidden");
+    t.innerHTML = isHidden ? "Read the passage &rarr;" : "Hide passage";
+  });
+</script>
+</body>
+</html>
